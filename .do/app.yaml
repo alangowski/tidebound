@@ -17,9 +17,10 @@ ingress:
         name: frontend
 services:
   - name: backend
-    git:
-      repo_clone_url: https://github.com/alangowski/tidebound.git
+    github:
+      repo: alangowski/tidebound
       branch: main
+      deploy_on_push: true
     source_dir: backend
     environment_slug: node-js
     build_command: npm ci
@@ -30,9 +31,10 @@ services:
       port: 8080
 static_sites:
   - name: frontend
-    git:
-      repo_clone_url: https://github.com/alangowski/tidebound.git
+    github:
+      repo: alangowski/tidebound
       branch: main
+      deploy_on_push: true
     source_dir: frontend
     environment_slug: node-js
     build_command: npm ci && npm run build
