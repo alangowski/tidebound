@@ -15,18 +15,13 @@ ingress:
           prefix: /
       component:
         name: frontend
-databases:
-  - engine: PG
-    name: db
-    num_nodes: 1
-    size: db-s-dev-database
-    version: "16"
 services:
   - name: backend
     envs:
       - key: DATABASE_URL
         scope: RUN_TIME
-        value: ${db.DATABASE_URL}
+        type: SECRET
+        value: "SET_IN_DASHBOARD"
       - key: JWT_SECRET
         scope: RUN_TIME
         type: SECRET
@@ -41,6 +36,9 @@ services:
       - key: APP_URL
         scope: RUN_TIME
         value: https://plankton-app-svf3w.ondigitalocean.app
+      - key: NODE_ENV
+        scope: RUN_TIME
+        value: production
     github:
       repo: alangowski/tidebound
       branch: main
