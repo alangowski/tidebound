@@ -1,96 +1,69 @@
-import { Suspense, lazy, useEffect, useState } from "react";
+import { Suspense, lazy, useState } from "react";
 
-const API_FALLBACK = "/api";
 const GameCanvas = lazy(() => import("./components/GameCanvas"));
 
-function normalizeApiBase(rawValue) {
-  if (!rawValue) {
-    return API_FALLBACK;
-  }
-
-  return rawValue.endsWith("/") ? rawValue.slice(0, -1) : rawValue;
-}
-
 export default function App() {
-  const apiBaseUrl = normalizeApiBase(import.meta.env.VITE_API_BASE_URL);
-  const [health, setHealth] = useState({
-    state: "loading",
-    data: null,
-    error: null
-  });
+  const [view, setView] = useState("title");
+  const [mentorChoice, setMentorChoice] = useState("pug");
+  const [weekId, setWeekId] = useState(1);
 
-  useEffect(() => {
-    const controller = new AbortController();
-
-    async function loadHealth() {
-      try {
-        const response = await fetch(`${apiBaseUrl}/health`, {
-          signal: controller.signal
-        });
-
-        if (!response.ok) {
-          throw new Error(`Health check failed with ${response.status}`);
-        }
-
-        const payload = await response.json();
-
-        setHealth({
-          state: "ready",
-          data: payload,
-          error: null
-        });
-      } catch (error) {
-        if (error.name === "AbortError") {
-          return;
-        }
-
-        setHealth({
-          state: "error",
-          data: null,
-          error: error.message
-        });
-      }
-    }
-
-    loadHealth();
-
-    return () => controller.abort();
-  }, [apiBaseUrl]);
-
-  return (
-    <main className="app-shell">
-      <section className="hero-card">
-        <div className="hero-copy">
-          <p className="eyebrow">React + Phaser + Express</p>
-          <h1>Tidebound</h1>
-          <p className="lede">
-            A DigitalOcean-ready starter layout with a static React client, a
-            routed Node API, and a Phaser scene mounted inside the app shell.
-          </p>
-          <div className="status-row">
-            <div className="status-card">
-              <span className="status-label">API base</span>
-              <code>{apiBaseUrl}</code>
-            </div>
-            <div className="status-card">
-              <span className="status-label">Backend</span>
-              {health.state === "loading" && <span>Checking...</span>}
-              {health.state === "error" && <span>{health.error}</span>}
-              {health.state === "ready" && (
-                <span>
-                  {health.data.status} on {health.data.service}
-                </span>
-              )}
-            </div>
-          </div>
-        </div>
-        <Suspense fallback={<section className="game-shell">Loading game preview...</section>}>
+  if (view === "playing") {
+    return (
+      <div className="game-fullscreen">
+        <button className="back-btn" onClick={() => setView("title")}>
+          ← Menu
+        </button>
+        <Suspense fallback={<div className="game-loading">Loading game...</div>}>
           <GameCanvas
-            mentorChoice="pug"
-            weekId={1}
+            key={`${mentorChoice}-${weekId}`}
+            mentorChoice={mentorChoice}
+            weekId={weekId}
             onQuestComplete={(data) => console.log("[Tidebound] Quest complete:", data)}
           />
         </Suspense>
+      </div>
+    );
+  }
+
+  return (
+    <main className="app-shell">
+      <section className="title-card">
+        <p className="eyebrow">A Coastal Learning Adventure</p>
+        <h1>Tidebound</h1>
+        <p className="lede">
+          Choose your mentor, pick a week, and explore the tidepools.
+        </p>
+
+        <div className="mentor-select">
+          <button
+            className={`mentor-btn${mentorChoice === "pug" ? " selected" : ""}`}
+            onClick={() => setMentorChoice("pug")}
+          >
+            🐶 Captain Pug
+          </button>
+          <button
+            className={`mentor-btn${mentorChoice === "fox" ? " selected" : ""}`}
+            onClick={() => setMentorChoice("fox")}
+          >
+            🦊 Professor Fox
+          </button>
+        </div>
+
+        <div className="week-grid">
+          {Array.from({ length: 12 }, (_, i) => i + 1).map((w) => (
+            <button
+              key={w}
+              className={`week-btn${weekId === w ? " selected" : ""}`}
+              onClick={() => setWeekId(w)}
+            >
+              {w}
+            </button>
+          ))}
+        </div>
+
+        <button className="play-btn" onClick={() => setView("playing")}>
+          PLAY
+        </button>
       </section>
     </main>
   );
