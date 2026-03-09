@@ -5,6 +5,10 @@ export class BootScene extends Phaser.Scene {
     super("BootScene");
   }
 
+  preload() {
+    // Shared asset loading goes here
+  }
+
   create() {
     this.scene.start("GameScene");
   }

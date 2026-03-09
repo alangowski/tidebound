@@ -1,7 +1,7 @@
 import { useEffect, useRef } from "react";
 import { createGame } from "../game/createGame";
 
-export default function GameCanvas({ mentorChoice, onQuestComplete }) {
+export default function GameCanvas({ mentorChoice, onQuestComplete, weekId = 1 }) {
   const gameRootRef = useRef(null);
 
   useEffect(() => {
@@ -13,6 +13,7 @@ export default function GameCanvas({ mentorChoice, onQuestComplete }) {
       parent: gameRootRef.current,
       mentorChoice,
       onQuestComplete,
+      weekId,
     });
 
     return () => {

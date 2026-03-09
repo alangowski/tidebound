@@ -2,7 +2,7 @@ import Phaser from "phaser";
 import { BootScene } from "./BootScene";
 import { GameScene } from "./GameScene";
 
-export function createGame({ parent, mentorChoice, onQuestComplete }) {
+export function createGame({ parent, mentorChoice, onQuestComplete, weekId = 1 }) {
   const game = new Phaser.Game({
     type: Phaser.AUTO,
     parent,
@@ -13,6 +13,13 @@ export function createGame({ parent, mentorChoice, onQuestComplete }) {
       width: 640,
       height: 400
     },
+    physics: {
+      default: "arcade",
+      arcade: {
+        gravity: { y: 0 },
+        debug: false,
+      },
+    },
     scene: [BootScene, GameScene],
     render: {
       antialias: true,
@@ -22,6 +29,7 @@ export function createGame({ parent, mentorChoice, onQuestComplete }) {
 
   game.registry.set("mentorChoice", mentorChoice);
   game.registry.set("onQuestComplete", onQuestComplete);
+  game.registry.set("weekId", weekId);
 
   return game;
 }

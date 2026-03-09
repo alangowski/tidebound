@@ -87,6 +87,7 @@ export default function App() {
         <Suspense fallback={<section className="game-shell">Loading game preview...</section>}>
           <GameCanvas
             mentorChoice="pug"
+            weekId={1}
             onQuestComplete={(data) => console.log("[Tidebound] Quest complete:", data)}
           />
         </Suspense>
