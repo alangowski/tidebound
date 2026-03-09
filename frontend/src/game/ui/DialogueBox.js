@@ -1,6 +1,6 @@
 import { FONT_FAMILY } from "../weeks/weekUtils";
 
-const BOX_HEIGHT = 100;
+const BOX_HEIGHT = 80;
 
 export class DialogueBox {
   constructor(scene) {

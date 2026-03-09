@@ -27,14 +27,14 @@ export default {
     this._placed = 0;
     this._ctx = ctx;
 
-    const zoneY = height - 140;
+    const zoneY = height - 170;
     const zoneW = width / 2 - 30;
 
     this._shortZone = scene.add.rectangle(width * 0.25, zoneY, zoneW, 80, ZONE_COLORS.short, 0.18)
       .setStrokeStyle(2, ZONE_COLORS.short, 0.5);
     group.add(this._shortZone);
 
-    const shortLabel = scene.add.text(width * 0.25, zoneY + 48, "SHORT TERM", {
+    const shortLabel = scene.add.text(width * 0.25, zoneY + 28, "SHORT TERM", {
       color: "#56cfff", fontFamily: "sans-serif", fontSize: "12px", fontStyle: "bold",
     }).setOrigin(0.5);
     group.add(shortLabel);
@@ -43,7 +43,7 @@ export default {
       .setStrokeStyle(2, ZONE_COLORS.long, 0.5);
     group.add(this._longZone);
 
-    const longLabel = scene.add.text(width * 0.75, zoneY + 48, "LONG TERM", {
+    const longLabel = scene.add.text(width * 0.75, zoneY + 28, "LONG TERM", {
       color: "#ff8c56", fontFamily: "sans-serif", fontSize: "12px", fontStyle: "bold",
     }).setOrigin(0.5);
     group.add(longLabel);

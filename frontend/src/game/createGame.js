@@ -21,6 +21,7 @@ export function createGame({ parent, mentorChoice, onQuestComplete, weekId = 1 }
       },
     },
     scene: [BootScene, GameScene],
+    resolution: window.devicePixelRatio || 1,
     render: {
       antialias: true,
       pixelArt: false
