@@ -2,8 +2,8 @@ import Phaser from "phaser";
 import { BootScene } from "./BootScene";
 import { GameScene } from "./GameScene";
 
-export function createGame(parent) {
-  return new Phaser.Game({
+export function createGame({ parent, mentorChoice, onQuestComplete }) {
+  const game = new Phaser.Game({
     type: Phaser.AUTO,
     parent,
     backgroundColor: "#08121d",
@@ -19,4 +19,9 @@ export function createGame(parent) {
       pixelArt: false
     }
   });
+
+  game.registry.set("mentorChoice", mentorChoice);
+  game.registry.set("onQuestComplete", onQuestComplete);
+
+  return game;
 }

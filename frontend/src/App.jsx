@@ -1,7 +1,7 @@
 import { Suspense, lazy, useEffect, useState } from "react";
 
 const API_FALLBACK = "/api";
-const GameShell = lazy(() => import("./components/GameShell"));
+const GameCanvas = lazy(() => import("./components/GameCanvas"));
 
 function normalizeApiBase(rawValue) {
   if (!rawValue) {
@@ -85,7 +85,10 @@ export default function App() {
           </div>
         </div>
         <Suspense fallback={<section className="game-shell">Loading game preview...</section>}>
-          <GameShell />
+          <GameCanvas
+            mentorChoice="pug"
+            onQuestComplete={(data) => console.log("[Tidebound] Quest complete:", data)}
+          />
         </Suspense>
       </section>
     </main>

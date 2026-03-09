@@ -8,6 +8,9 @@ export class GameScene extends Phaser.Scene {
   create() {
     const { width, height } = this.scale;
 
+    const mentorChoice = this.registry.get("mentorChoice");
+    const beaconColor = this.getBeaconColor(mentorChoice);
+
     this.cameras.main.setBackgroundColor("#08121d");
 
     const water = this.add.graphics();
@@ -23,8 +26,9 @@ export class GameScene extends Phaser.Scene {
       })
       .setAlpha(0.92);
 
+    const mentorLabel = mentorChoice ? `Mentor: ${mentorChoice}` : "No mentor selected";
     this.add
-      .text(24, 58, "Frontend and backend are separated for App Platform.", {
+      .text(24, 58, mentorLabel, {
         color: "#b8f2e6",
         fontFamily: "Avenir Next, Trebuchet MS, sans-serif",
         fontSize: "14px"
@@ -32,7 +36,7 @@ export class GameScene extends Phaser.Scene {
       .setAlpha(0.92);
 
     const island = this.add.ellipse(width * 0.5, height * 0.62, 210, 94, 0xf7a072, 0.9);
-    const beacon = this.add.circle(width * 0.5, height * 0.46, 18, 0xffcf56, 1);
+    const beacon = this.add.circle(width * 0.5, height * 0.46, 18, beaconColor, 1);
     const horizon = this.add.rectangle(width * 0.5, height * 0.82, width * 0.7, 8, 0xb8f2e6, 0.22);
 
     this.tweens.add({
@@ -50,7 +54,13 @@ export class GameScene extends Phaser.Scene {
         x: Phaser.Math.Clamp(pointer.x, 30, width - 30),
         y: Phaser.Math.Clamp(pointer.y, 90, height - 70),
         duration: 450,
-        ease: "Sine.easeOut"
+        ease: "Sine.easeOut",
+        onComplete: () => {
+          const onQuestComplete = this.registry.get("onQuestComplete");
+          if (onQuestComplete) {
+            onQuestComplete({ quest: "beacon", score: 100 });
+          }
+        }
       });
     });
 
@@ -63,5 +73,14 @@ export class GameScene extends Phaser.Scene {
       repeat: -1,
       yoyo: true
     });
+  }
+
+  getBeaconColor(mentorChoice) {
+    const colors = {
+      pug: 0xffcf56,
+      owl: 0x56cfff,
+      fox: 0xff8c56,
+    };
+    return colors[mentorChoice] || 0xffcf56;
   }
 }
