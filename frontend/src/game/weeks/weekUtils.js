@@ -1,5 +1,10 @@
 export const FONT_FAMILY = "Avenir Next, Trebuchet MS, sans-serif";
 
+export const MENTORS = {
+  pug: { name: "Captain Pug", emoji: "🐶" },
+  fox: { name: "Professor Fox", emoji: "🦊" },
+};
+
 export function createScoreText(scene, group, x, y, initialScore = 0) {
   const text = scene.add.text(x, y, `Score: ${initialScore}`, {
     color: "#ffcf56",

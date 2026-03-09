@@ -18,7 +18,7 @@ export class GameScene extends Phaser.Scene {
     water.fillGradientStyle(0x0d2a3f, 0x12344f, 0x091a29, 0x050d16, 1);
     water.fillRect(0, 0, width, height);
 
-    this.dialogue = new DialogueBox(this);
+    this.dialogue = new DialogueBox(this, this.registry.get("mentorChoice"));
     this.weekGroup = this.add.group();
 
     const weekId = this.registry.get("weekId") || 1;

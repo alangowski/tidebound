@@ -11,7 +11,8 @@ export function createGame({ parent, mentorChoice, onQuestComplete, weekId = 1 }
       mode: Phaser.Scale.RESIZE,
       autoCenter: Phaser.Scale.CENTER_BOTH,
       width: 640,
-      height: 400
+      height: 400,
+      resolution: window.devicePixelRatio || 1,
     },
     physics: {
       default: "arcade",
@@ -21,7 +22,6 @@ export function createGame({ parent, mentorChoice, onQuestComplete, weekId = 1 }
       },
     },
     scene: [BootScene, GameScene],
-    resolution: window.devicePixelRatio || 1,
     render: {
       antialias: true,
       pixelArt: false

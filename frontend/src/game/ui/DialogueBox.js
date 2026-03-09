@@ -1,10 +1,12 @@
-import { FONT_FAMILY } from "../weeks/weekUtils";
+import { FONT_FAMILY, MENTORS } from "../weeks/weekUtils";
 
 const BOX_HEIGHT = 80;
 
 export class DialogueBox {
-  constructor(scene) {
+  constructor(scene, mentorId) {
     this.scene = scene;
+    const mentor = MENTORS[mentorId];
+    this.mentorLabel = mentor ? `${mentor.emoji} ${mentor.name}` : "Mentor";
     const { width, height } = scene.scale;
 
     this.bg = scene.add
@@ -38,7 +40,7 @@ export class DialogueBox {
   }
 
   show(speaker, message) {
-    this.label.setText(speaker);
+    this.label.setText(speaker === "Mentor" ? this.mentorLabel : speaker);
     this.text.setText(message);
     this.bg.setVisible(true);
     this.label.setVisible(true);
