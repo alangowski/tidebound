@@ -55,6 +55,12 @@ code {
   line-height: 1.7;
 }
 
+.lede-sub {
+  font-size: 0.85rem;
+  color: #7fb3d3;
+  opacity: 0.9;
+}
+
 /* Title card */
 
 .title-card {
@@ -155,6 +161,81 @@ code {
   box-shadow: 0 8px 28px rgba(184, 242, 230, 0.3);
 }
 
+/* Character Demo section */
+.demo-section {
+  margin-top: 8px;
+}
+
+.demo-label {
+  font-size: 0.72rem;
+  color: #7fb3d3;
+  letter-spacing: 0.5px;
+  margin-bottom: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+
+.new-badge {
+  background: #56cfff;
+  color: #06101b;
+  font-size: 0.58rem;
+  font-weight: 700;
+  padding: 1px 6px;
+  border-radius: 6px;
+  letter-spacing: 0.8px;
+}
+
+/* Character Demo buttons (highlights the new animated player system) */
+.demo-buttons {
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.demo-btn-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+}
+
+.demo-best {
+  font-size: 0.65rem;
+  color: #7fb3d3;
+  opacity: 0.85;
+  min-height: 14px;
+  pointer-events: none;
+}
+
+.demo-btn {
+  padding: 9px 16px;
+  border: 1px solid rgba(86, 207, 255, 0.5);
+  border-radius: 12px;
+  background: rgba(11, 28, 41, 0.6);
+  color: #56cfff;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  white-space: nowrap;
+}
+
+.demo-btn:hover {
+  background: rgba(86, 207, 255, 0.12);
+  border-color: #56cfff;
+  transform: translateY(-1px);
+}
+
+.demo-btn.selected {
+  background: rgba(86, 207, 255, 0.2);
+  border-color: #56cfff;
+  color: #b8f2e6;
+  box-shadow: 0 0 0 2px rgba(86, 207, 255, 0.3);
+}
+
 /* Full-screen game overlay */
 
 .game-fullscreen {
@@ -245,4 +326,12 @@ code {
   .week-grid {
     grid-template-columns: repeat(4, 1fr);
   }
+}
+
+/* Character system polish (in-game control hints, etc.) */
+.game-character-hint {
+  font-size: 0.8rem;
+  color: #7fb3d3;
+  opacity: 0.85;
+  pointer-events: none;
 }

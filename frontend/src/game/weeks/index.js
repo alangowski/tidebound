@@ -11,6 +11,14 @@ const weekLoaders = {
   10: () => import("./week10.js"),
   11: () => import("./week11.js"),
   12: () => import("./week12.js"),
+  // Demo of the new animated player character system.
+  // Accessible via the "Try Explorer Character Demo" button on the title screen.
+  demo: () => import("./demo-character.js"),
+  "demo-navigator": () => import("./demo-navigator.js"),
+  "demo-currents": () => import("./demo-currents.js"),
+  "demo-push": () => import("./demo-push.js"),
+  "demo-rush": () => import("./demo-rush.js"),
+  "demo-relay": () => import("./demo-relay.js"),
 };
 
 export default weekLoaders;

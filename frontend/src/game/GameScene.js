@@ -1,6 +1,8 @@
 import Phaser from "phaser";
 import { DialogueBox } from "./ui/DialogueBox";
 import weekLoaders from "./weeks/index";
+import { PlayerCharacter } from "./characters/PlayerCharacter.js";
+import { createControlLegend, showBriefControlHint } from "./weeks/weekUtils.js";
 
 export class GameScene extends Phaser.Scene {
   constructor() {
@@ -21,6 +23,9 @@ export class GameScene extends Phaser.Scene {
     this.dialogue = new DialogueBox(this, this.registry.get("mentorChoice"));
     this.weekGroup = this.add.group();
 
+    // Dedicated tracking for player-controlled characters (opt-in by weeks)
+    this.players = [];
+
     const weekId = this.registry.get("weekId") || 1;
     this.loadWeek(weekId);
   }
@@ -32,6 +37,21 @@ export class GameScene extends Phaser.Scene {
       this.activeWeek.shutdown(this);
       this.activeWeek = null;
     }
+
+    // Clean up any player characters from the previous week
+    if (this.players && this.players.length > 0) {
+      this.players.forEach((p) => p.destroy && p.destroy());
+      this.players = [];
+    }
+
+    // Clean up auto-generated character legend
+    if (this._characterLegend) {
+      this._characterLegend.destroy();
+      this._characterLegend = null;
+    }
+
+    this._controlHintShown = false;
+
     this.weekGroup.clear(true, true);
     this.dialogue.hide();
 
@@ -53,6 +73,35 @@ export class GameScene extends Phaser.Scene {
           const cb = this.registry.get("onQuestComplete");
           if (cb) cb({ week: weekId, ...result });
         },
+        /**
+         * Opt-in API for weeks that want a player-controlled animated character.
+         * Returns a PlayerCharacter instance. The week is responsible for calling
+         * player.update(time, delta) if it overrides the default delegation,
+         * and must clean up via shutdown (though GameScene also cleans on week change).
+         */
+        createPlayerCharacter: (options = {}) => {
+          const player = new PlayerCharacter(this, options.x ?? 120, options.y ?? 160, {
+            mentorChoice: this.registry.get("mentorChoice"),
+            ...options,
+          });
+          if (!this.players) this.players = [];
+          this.players.push(player);
+
+          // Automatically add a control legend the first time a player character is created
+          if (!this._characterLegend) {
+            const legendText = options.legendText || "Arrows/WASD  •  Click  •  Space = Dash  •  E = Grab/Throw  •  Q = Surge  •  Joystick bottom-left";
+            this._characterLegend = createControlLegend(this, this.weekGroup, legendText);
+          }
+
+          // Show a brief "How to Control" reminder for demo weeks
+          const weekId = this.registry.get("weekId");
+          if (!this._controlHintShown && typeof weekId === 'string' && weekId.startsWith('demo-')) {
+            showBriefControlHint(this, this.weekGroup);
+            this._controlHintShown = true;
+          }
+
+          return player;
+        },
       };
 
       week.create(this, ctx);
@@ -68,6 +117,15 @@ export class GameScene extends Phaser.Scene {
     if (this.ready && this.activeWeek && this.activeWeek.update) {
       this.activeWeek.update(this, time, delta);
     }
+
+    // Drive any active player characters (they handle their own input + animation)
+    if (this.players && this.players.length > 0) {
+      for (const player of this.players) {
+        if (player && player.update) {
+          player.update(time, delta);
+        }
+      }
+    }
   }
 
   shutdown() {
@@ -75,6 +133,18 @@ export class GameScene extends Phaser.Scene {
       this.activeWeek.shutdown(this);
       this.activeWeek = null;
     }
+
+    // Destroy any remaining player characters
+    if (this.players && this.players.length > 0) {
+      this.players.forEach((p) => p.destroy && p.destroy());
+      this.players = [];
+    }
+
+    if (this._characterLegend) {
+      this._characterLegend.destroy();
+      this._characterLegend = null;
+    }
+
     if (this.dialogue) {
       this.dialogue.destroy();
     }

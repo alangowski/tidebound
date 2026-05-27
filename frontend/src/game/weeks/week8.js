@@ -1,5 +1,5 @@
 import Phaser from "phaser";
-import { createTitle, createInstructionText, createScoreText, formatCurrency } from "./weekUtils";
+import { createTitle, createInstructionText, createScoreText, formatCurrency, createControlLegend, getSafePlayArea } from "./weekUtils";
 
 const TRACK_LENGTH = 500;
 const WORK_CLICKS_NEEDED = 3;
@@ -14,13 +14,11 @@ export default {
     const { group } = ctx;
 
     createTitle(scene, group, this.title);
-    createInstructionText(scene, group, 'Click "Work" to advance your saver. Watch the credit buyer race ahead!');
+    createInstructionText(scene, group, 'Control your explorer (arrows / WASD / click) and click "Work" to advance. Watch the credit buyer race ahead!');
 
     this._score = createScoreText(scene, group, width - 140, 20);
     this._ctx = ctx;
     this._workClicks = 0;
-    this._saverPos = 0;
-    this._creditPos = 0;
     this._finished = false;
     this._timers = [];
 
@@ -38,7 +36,7 @@ export default {
     group.add(track2);
 
     // Labels
-    const saverLabel = scene.add.text(trackLeft - 60, trackY1, "Saver", {
+    const saverLabel = scene.add.text(trackLeft - 60, trackY1, "Saver (You)", {
       color: "#56ff9e", fontFamily: "sans-serif", fontSize: "12px", fontStyle: "bold",
     }).setOrigin(0, 0.5);
     group.add(saverLabel);
@@ -47,9 +45,15 @@ export default {
     }).setOrigin(0, 0.5);
     group.add(creditLabel);
 
-    // Avatars
-    this._saver = scene.add.circle(trackLeft, trackY1, 10, 0x56ff9e);
-    group.add(this._saver);
+    // === NEW: Controllable animated explorer (replaces old static circle) ===
+    // The player can move the explorer with keyboard or clicks while also using Work.
+    this._saverPlayer = ctx.createPlayerCharacter({
+      x: trackLeft,
+      y: trackY1,
+      size: 22,
+    });
+
+    // Keep the old credit avatar as an NPC (simple circle for now)
     this._credit = scene.add.circle(trackLeft, trackY2, 10, 0xff8c56);
     group.add(this._credit);
 
@@ -59,16 +63,18 @@ export default {
     });
     group.add(this._debtLabel);
 
-    // Work button
+    // Control hint (new helper)
+    this._controlLegend = createControlLegend(scene, group, "Move: arrows / WASD  •  Click track  •  Work button advances progress");
+
+    // Work button — now both gives progress AND nudges the real player character forward
     this._workBtn = scene.add.text(width / 2, height - 60, "Work", {
       color: "#0a1622", fontFamily: "sans-serif", fontSize: "16px", fontStyle: "bold",
       backgroundColor: "#56ff9e", padding: { x: 24, y: 10 },
     }).setOrigin(0.5).setInteractive({ useHandCursor: true });
     group.add(this._workBtn);
 
-    // Credit buyer races immediately
+    // Credit buyer races immediately (unchanged behavior)
     this._timers.push(scene.time.delayedCall(500, () => {
-      this._creditPos = TRACK_LENGTH;
       scene.tweens.add({
         targets: this._credit,
         x: trackRight,
@@ -85,21 +91,33 @@ export default {
 
       this._workClicks++;
       const progress = Math.min(this._workClicks / WORK_CLICKS_NEEDED, 1);
-      const newX = trackLeft + progress * TRACK_LENGTH;
+      const targetX = trackLeft + progress * TRACK_LENGTH;
 
-      scene.tweens.add({
-        targets: this._saver,
-        x: newX,
-        duration: 300,
-        ease: "Sine.easeOut",
-      });
+      // Nudge the real animated player character forward along the track
+      if (this._saverPlayer) {
+        const current = this._saverPlayer.getPosition();
+        // Gentle forward bias while still allowing full player control
+        this._saverPlayer.setVelocity(90, 0);
+        // Also directly move toward the progress target over a short time
+        scene.tweens.add({
+          targets: this._saverPlayer.container,
+          x: targetX,
+          duration: 260,
+          ease: "Sine.easeOut",
+          onUpdate: () => {
+            if (this._saverPlayer && this._saverPlayer.body && this._saverPlayer.body.body) {
+              this._saverPlayer.body.x = this._saverPlayer.container.x;
+            }
+          },
+        });
+      }
 
       if (this._workClicks >= WORK_CLICKS_NEEDED) {
         this._finished = true;
         this._workBtn.disableInteractive().setAlpha(0.4);
         this._score.add(80);
 
-        this._timers.push(scene.time.delayedCall(500, () => {
+        this._timers.push(scene.time.delayedCall(520, () => {
           // Credit avatar gets "heavier"
           scene.tweens.add({
             targets: this._credit,
@@ -114,15 +132,31 @@ export default {
       }
     });
 
-    ctx.dialogue.show("Mentor", "Let's race! Saving takes time, but credit comes with debt.");
+    ctx.dialogue.show("Mentor", "Let's race! Saving takes time, but credit comes with debt. Move your explorer!");
   },
 
-  update() {},
+  update(scene, time, delta) {
+    // The PlayerCharacter is now driven centrally by GameScene,
+    // but we can still do week-specific logic here if needed.
+    // Example: clamp the saver player to the track line
+    if (this._saverPlayer && this._saverPlayer.container) {
+      const trackY = (scene.scale.height / 2) - 30;
+      if (Math.abs(this._saverPlayer.container.y - trackY) > 6) {
+        this._saverPlayer.container.y = trackY;
+        if (this._saverPlayer.body) this._saverPlayer.body.y = trackY;
+      }
+    }
+  },
 
-  shutdown() {
+  shutdown(scene) {
     if (this._timers) {
       this._timers.forEach(t => t.remove());
       this._timers = [];
     }
+
+    // The real PlayerCharacter instance is destroyed by GameScene on week change.
+    // We just drop our local reference.
+    this._saverPlayer = null;
+    this._controlLegend = null;
   },
 };
