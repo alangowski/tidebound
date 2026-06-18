@@ -1,0 +1,79 @@
+domains:
+- domain: tidebound.quest
+  type: PRIMARY
+  zone: tidebound.quest
+- domain: www.tidebound.quest
+  type: ALIAS
+  zone: tidebound.quest
+features:
+- buildpack-stack=ubuntu-22
+ingress:
+  rules:
+  - component:
+      name: backend
+      preserve_path_prefix: true
+    match:
+      path:
+        prefix: /api
+  - component:
+      name: frontend
+    match:
+      path:
+        prefix: /
+name: tidebound
+region: nyc
+services:
+- build_command: npm ci
+  environment_slug: node-js
+  envs:
+  - key: DATABASE_URL
+    scope: RUN_TIME
+    type: SECRET
+    value: "SET_IN_DASHBOARD"
+  - key: JWT_SECRET
+    scope: RUN_AND_BUILD_TIME
+    type: SECRET
+    value: "SET_IN_DASHBOARD"
+  - key: JWT_EXPIRES_IN
+    scope: RUN_AND_BUILD_TIME
+    value: 7d
+  - key: RESEND_API_KEY
+    scope: RUN_AND_BUILD_TIME
+    type: SECRET
+    value: "SET_IN_DASHBOARD"
+  - key: EMAIL_FROM
+    scope: RUN_AND_BUILD_TIME
+    value: tidebound@resend.dev
+  - key: APP_URL
+    scope: RUN_AND_BUILD_TIME
+    value: https://tidebound.quest
+  - key: MAGIC_LINK_EXPIRY_MINUTES
+    scope: RUN_AND_BUILD_TIME
+    value: "15"
+  - key: NODE_ENV
+    scope: RUN_TIME
+    value: production
+  github:
+    branch: main
+    deploy_on_push: true
+    repo: alangowski/tidebound
+  health_check:
+    http_path: /api/health
+    port: 8080
+  http_port: 8080
+  instance_count: 1
+  instance_size_slug: apps-s-1vcpu-0.5gb
+  name: backend
+  run_command: npm start
+  source_dir: backend
+static_sites:
+- build_command: npm ci && npm run build
+  catchall_document: index.html
+  environment_slug: node-js
+  github:
+    branch: main
+    deploy_on_push: true
+    repo: alangowski/tidebound
+  name: frontend
+  output_dir: dist
+  source_dir: frontend

@@ -137,3 +137,6 @@ dist
 # Vite logs files
 vite.config.js.timestamp-*
 vite.config.ts.timestamp-*
+
+# DO app spec backups may contain encrypted secret blobs
+.do/*backup*.yaml
