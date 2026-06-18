@@ -1,3 +1,7 @@
+# NON-AUTHORITATIVE SNAPSHOT — do not `doctl apps create/update --spec` this file directly.
+# Historical backup of the deleted tidebound app's live spec (2026-06-18), captured for
+# reference only. Secret values are redacted to SET_IN_DASHBOARD; secret scopes are
+# normalized to RUN_TIME. The authoritative spec is .do/app.yaml.
 domains:
 - domain: tidebound.quest
   type: PRIMARY
@@ -31,14 +35,14 @@ services:
     type: SECRET
     value: "SET_IN_DASHBOARD"
   - key: JWT_SECRET
-    scope: RUN_AND_BUILD_TIME
+    scope: RUN_TIME
     type: SECRET
     value: "SET_IN_DASHBOARD"
   - key: JWT_EXPIRES_IN
     scope: RUN_AND_BUILD_TIME
     value: 7d
   - key: RESEND_API_KEY
-    scope: RUN_AND_BUILD_TIME
+    scope: RUN_TIME
     type: SECRET
     value: "SET_IN_DASHBOARD"
   - key: EMAIL_FROM
